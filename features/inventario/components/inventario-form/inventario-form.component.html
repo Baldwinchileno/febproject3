@@ -1,0 +1,221 @@
+<!-- features/inventario/components/inventario-form/inventario-form.component.html -->
+<div class="container-fluid py-4">
+  <div class="card">
+    <div class="card-body">
+      <!-- Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="card-title h3 mb-0">{{titulo()}}</h1>
+        <button type="button" class="btn btn-outline-secondary" [routerLink]="['/inventario/productos']">
+          <i class="bi bi-arrow-left me-2"></i>Volver
+        </button>
+      </div>
+
+      <!-- Formulario -->
+      <form [formGroup]="productoForm" (ngSubmit)="onSubmit()" class="row g-3">
+        <!-- Código -->
+        <div class="col-md-6">
+          <label for="codigo" class="form-label">Código *</label>
+          <input
+            type="text"
+            class="form-control"
+            id="codigo"
+            formControlName="codigo"
+            [class.is-invalid]="campoInvalido('codigo')"
+            [readonly]="modoEdicion()">
+          <div class="invalid-feedback">
+            {{getMensajeError('codigo')}}
+          </div>
+        </div>
+
+        <!-- Nombre -->
+        <div class="col-md-6">
+          <label for="nombre" class="form-label">Nombre *</label>
+          <input
+            type="text"
+            class="form-control"
+            id="nombre"
+            formControlName="nombre"
+            [class.is-invalid]="campoInvalido('nombre')">
+          <div class="invalid-feedback">
+            {{getMensajeError('nombre')}}
+          </div>
+        </div>
+
+        <!-- Descripción -->
+        <div class="col-12">
+          <label for="descripcion" class="form-label">Descripción *</label>
+          <textarea
+            class="form-control"
+            id="descripcion"
+            formControlName="descripcion"
+            [class.is-invalid]="campoInvalido('descripcion')"
+            rows="3">
+          </textarea>
+          <div class="invalid-feedback">
+            {{getMensajeError('descripcion')}}
+          </div>
+        </div>
+
+        <!-- Unidad de Medida -->
+        <div class="col-md-6">
+          <label for="unidadMedida" class="form-label">Unidad de Medida *</label>
+          <select
+            class="form-select"
+            id="unidadMedida"
+            formControlName="unidadMedida"
+            [class.is-invalid]="campoInvalido('unidadMedida')">
+            <option value="">Seleccionar...</option>
+            @for (unidad of unidadesMedida; track unidad) {
+              <option [value]="unidad">{{unidad}}</option>
+            }
+          </select>
+          <div class="invalid-feedback">
+            {{getMensajeError('unidadMedida')}}
+          </div>
+        </div>
+
+        <!-- Categoría -->
+        <div class="col-md-6">
+          <label for="categoria" class="form-label">Categoría *</label>
+          <select
+            class="form-select"
+            id="categoria"
+            formControlName="categoria"
+            [class.is-invalid]="campoInvalido('categoria')">
+            <option value="">Seleccionar...</option>
+            @for (categoria of categorias; track categoria) {
+              <option [value]="categoria">{{categoria}}</option>
+            }
+          </select>
+          <div class="invalid-feedback">
+            {{getMensajeError('categoria')}}
+          </div>
+        </div>
+
+        <!-- Subcategoría -->
+        <div class="col-md-6">
+          <label for="subCategoria" class="form-label">Subcategoría *</label>
+          <select
+            class="form-select"
+            id="subCategoria"
+            formControlName="subCategoria"
+            [class.is-invalid]="campoInvalido('subCategoria')"
+            [disabled]="!productoForm.get('categoria')?.value">
+            <option value="">Seleccionar...</option>
+            @for (subCategoria of getSubcategorias(); track subCategoria) {
+              <option [value]="subCategoria">{{subCategoria}}</option>
+            }
+          </select>
+          <div class="invalid-feedback">
+            {{getMensajeError('subCategoria')}}
+          </div>
+        </div>
+
+        <!-- Stock Mínimo -->
+        <div class="col-md-4">
+          <label for="stockMinimo" class="form-label">Stock Mínimo *</label>
+          <input
+            type="number"
+            class="form-control"
+            id="stockMinimo"
+            formControlName="stockMinimo"
+            [class.is-invalid]="campoInvalido('stockMinimo')">
+          <div class="invalid-feedback">
+            {{getMensajeError('stockMinimo')}}
+          </div>
+        </div>
+
+        <!-- Precio Compra -->
+        <div class="col-md-4">
+          <label for="precioCompra" class="form-label">Precio de Compra *</label>
+          <div class="input-group">
+            <span class="input-group-text">$</span>
+            <input
+              type="number"
+              class="form-control"
+              id="precioCompra"
+              formControlName="precioCompra"
+              [class.is-invalid]="campoInvalido('precioCompra')">
+            <div class="invalid-feedback">
+              {{getMensajeError('precioCompra')}}
+            </div>
+          </div>
+        </div>
+
+        <!-- Precio Venta -->
+        <div class="col-md-4">
+          <label for="precioVenta" class="form-label">Precio de Venta *</label>
+          <div class="input-group">
+            <span class="input-group-text">$</span>
+            <input
+              type="number"
+              class="form-control"
+              id="precioVenta"
+              formControlName="precioVenta"
+              [class.is-invalid]="campoInvalido('precioVenta')">
+            <div class="invalid-feedback">
+              {{getMensajeError('precioVenta')}}
+            </div>
+          </div>
+        </div>
+
+        <!-- Ubicación -->
+        <div class="col-md-4">
+          <label for="ubicacion" class="form-label">Ubicación *</label>
+          <select
+            class="form-select"
+            id="ubicacion"
+            formControlName="ubicacion"
+            [class.is-invalid]="campoInvalido('ubicacion')">
+            <option value="">Seleccionar...</option>
+            @for (ubicacion of ubicaciones; track ubicacion) {
+              <option [value]="ubicacion">{{ubicacion}}</option>
+            }
+          </select>
+          <div class="invalid-feedback">
+            {{getMensajeError('ubicacion')}}
+          </div>
+        </div>
+
+        <!-- Fecha de Vencimiento -->
+        <div class="col-md-4">
+          <label for="fechaVencimiento" class="form-label">Fecha de Vencimiento</label>
+          <input
+            type="date"
+            class="form-control"
+            id="fechaVencimiento"
+            formControlName="fechaVencimiento">
+        </div>
+
+        <!-- Notas -->
+        <div class="col-12">
+          <label for="notas" class="form-label">Notas</label>
+          <textarea
+            class="form-control"
+            id="notas"
+            formControlName="notas"
+            rows="2">
+          </textarea>
+        </div>
+
+        <!-- Botones -->
+        <div class="col-12 mt-4">
+          <div class="d-flex gap-2 justify-content-end">
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              [routerLink]="['/inventario/productos']">
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="productoForm.invalid || loading()">
+              {{modoEdicion() ? 'Actualizar' : 'Guardar'}}
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

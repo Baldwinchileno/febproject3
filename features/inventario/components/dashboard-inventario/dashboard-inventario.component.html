@@ -1,0 +1,170 @@
+<!-- dashboard-inventario.component.html -->
+<div class="container-fluid p-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="text-2xl font-bold">Dashboard de Inventario</h1>
+      <div class="btn-group">
+        <button class="btn btn-outline-primary">Hoy</button>
+        <button class="btn btn-outline-primary">Semana</button>
+        <button class="btn btn-outline-primary active">Mes</button>
+      </div>
+    </div>
+  
+    <!-- Cards de Métricas Principales -->
+    <div class="row g-4 mb-4">
+      <div class="col-md-4">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title text-muted mb-3">Total Productos</h5>
+            <div class="d-flex align-items-center justify-content-between">
+              <h2 class="mb-0">{{dashboardService.metrics().totalProductos}}</h2>
+              <div class="text-success d-flex align-items-center">
+                <i class="bi bi-arrow-up-short me-1"></i>
+                <span>12%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <div class="col-md-4">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title text-muted mb-3">Stock Crítico</h5>
+            <div class="d-flex align-items-center justify-content-between">
+              <h2 class="mb-0">{{dashboardService.metrics().productosStockCritico}}</h2>
+              <div class="text-danger d-flex align-items-center">
+                <i class="bi bi-arrow-up-short me-1"></i>
+                <span>3</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <div class="col-md-4">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title text-muted mb-3">Movimientos del Mes</h5>
+            <div class="d-flex align-items-center justify-content-between">
+              <h2 class="mb-0">{{dashboardService.metrics().movimientosMes}}</h2>
+              <div class="text-success d-flex align-items-center">
+                <i class="bi bi-arrow-up-short me-1"></i>
+                <span>{{dashboardService.metrics().variacionMensual}}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Gráficos y Alertas -->
+    <div class="row g-4">
+      <!-- Gráfico de Movimientos -->
+      <div class="col-md-8">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title mb-4">Movimientos de Inventario</h5>
+            <div class="chart-container" style="height: 300px;">
+              <app-movimientos-chart 
+                [data]="dashboardService.movimientosMensuales()"
+              ></app-movimientos-chart>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Alertas de Stock -->
+      <div class="col-md-4">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title mb-4">Alertas de Stock</h5>
+            <div class="alerts-container">
+              @for (alerta of dashboardService.metrics().alertas; track alerta.codigo) {
+                <div class="alert alert-danger d-flex align-items-center mb-3" role="alert">
+                  <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                  <div>
+                    <strong>{{alerta.nombre}}</strong>
+                    <br>
+                    <small>Stock: {{alerta.stock}} | Mínimo: {{alerta.minimo}}</small>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Productos Más Vendidos y Movimientos por Ubicación -->
+    <div class="row g-4 mt-4">
+      <!-- Top Productos -->
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title mb-4">Productos Más Vendidos</h5>
+            <div class="chart-container" style="height: 300px;">
+              <app-top-productos-chart
+                [data]="dashboardService.topProductos()"
+              ></app-top-productos-chart>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Tabla de Movimientos por Ubicación -->
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title mb-4">Movimientos por Ubicación</h5>
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Ubicación</th>
+                    <th>Entradas</th>
+                    <th>Salidas</th>
+                    <th>Balance</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (movimiento of dashboardService.movimientosPorUbicacion(); track movimiento.ubicacion) {
+                    <tr>
+                      <td>{{movimiento.ubicacion}}</td>
+                      <td class="text-success">+{{movimiento.entradas}}</td>
+                      <td class="text-danger">-{{movimiento.salidas}}</td>
+                      <td [ngClass]="{'text-success': movimiento.balance > 0, 'text-danger': movimiento.balance < 0}">
+                        {{movimiento.balance}}
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Acciones Rápidas -->
+    <div class="row mt-4">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title mb-4">Acciones Rápidas</h5>
+            <div class="d-flex gap-2">
+              <button class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i>Nuevo Producto
+              </button>
+              <button class="btn btn-success">
+                <i class="bi bi-arrow-left-right me-2"></i>Realizar Traspaso
+              </button>
+              <button class="btn btn-info">
+                <i class="bi bi-file-earmark-text me-2"></i>Generar Reporte
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

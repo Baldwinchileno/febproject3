@@ -1,0 +1,206 @@
+<!-- features/inventario/components/traspasos/traspasos.component.html -->
+<div class="container-fluid py-4">
+  <div class="row">
+    <!-- Formulario de Traspaso -->
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="card-title h4 mb-4">Registrar Traspaso</h2>
+
+          <!-- Búsqueda de Producto -->
+          <form [formGroup]="busquedaForm" (ngSubmit)="buscarProducto()" class="mb-4">
+            <div class="row g-3 align-items-end">
+              <div class="col">
+                <label for="codigo" class="form-label">Código de Producto</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="codigo"
+                  formControlName="codigo"
+                  [class.is-invalid]="isFieldInvalid(busquedaForm, 'codigo')">
+                <div class="invalid-feedback">
+                  {{getErrorMessage(busquedaForm, 'codigo')}}
+                </div>
+              </div>
+              <div class="col-auto">
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  [disabled]="busquedaForm.invalid || cargando()">
+                  <i class="bi bi-search me-2"></i>Buscar
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <!-- Información del Producto -->
+          @if (productoSeleccionado()) {
+            <div class="alert alert-info mb-4">
+              <h6 class="alert-heading">Producto Seleccionado</h6>
+              <p class="mb-0">
+                <strong>{{productoSeleccionado()?.codigo}}</strong> - 
+                {{productoSeleccionado()?.descripcion}}
+                <br>
+                Stock actual: {{productoSeleccionado()?.unidades}} unidades / 
+                {{productoSeleccionado()?.kilos}} kilos
+                <br>
+                Ubicación actual: {{productoSeleccionado()?.ubicacion}}
+              </p>
+            </div>
+          }
+
+          <!-- Formulario de Traspaso -->
+          <form [formGroup]="traspasoForm" (ngSubmit)="realizarTraspaso()">
+            <!-- Ubicaciones -->
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label for="ubicacionOrigen" class="form-label">Ubicación Origen</label>
+                <select
+                  class="form-select"
+                  id="ubicacionOrigen"
+                  formControlName="ubicacionOrigen"
+                  [class.is-invalid]="isFieldInvalid(traspasoForm, 'ubicacionOrigen')">
+                  <option value="">Seleccionar...</option>
+                  @for (ubicacion of ubicaciones; track ubicacion) {
+                    <option [value]="ubicacion">{{ubicacion}}</option>
+                  }
+                </select>
+                <div class="invalid-feedback">
+                  {{getErrorMessage(traspasoForm, 'ubicacionOrigen')}}
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label for="ubicacionDestino" class="form-label">Ubicación Destino</label>
+                <select
+                  class="form-select"
+                  id="ubicacionDestino"
+                  formControlName="ubicacionDestino"
+                  [class.is-invalid]="isFieldInvalid(traspasoForm, 'ubicacionDestino')">
+                  <option value="">Seleccionar...</option>
+                  @for (ubicacion of ubicacionesDisponibles(); track ubicacion) {
+                    <option [value]="ubicacion">{{ubicacion}}</option>
+                  }
+                </select>
+                <div class="invalid-feedback">
+                  {{getErrorMessage(traspasoForm, 'ubicacionDestino')}}
+                </div>
+              </div>
+            </div>
+
+            <!-- Cantidades -->
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label for="unidades" class="form-label">Unidades</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="unidades"
+                  formControlName="unidades"
+                  [class.is-invalid]="isFieldInvalid(traspasoForm, 'unidades')"
+                  min="1"
+                  [max]="productoSeleccionado()?.unidades || 0">
+                <div class="invalid-feedback">
+                  {{getErrorMessage(traspasoForm, 'unidades')}}
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label for="kilos" class="form-label">Kilos</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="kilos"
+                  formControlName="kilos"
+                  [class.is-invalid]="isFieldInvalid(traspasoForm, 'kilos')"
+                  min="0.01"
+                  step="0.01"
+                  [max]="productoSeleccionado()?.kilos || 0">
+                <div class="invalid-feedback">
+                  {{getErrorMessage(traspasoForm, 'kilos')}}
+                </div>
+              </div>
+            </div>
+
+            <!-- Motivo y Observaciones -->
+            <div class="mb-3">
+              <label for="motivo" class="form-label">Motivo</label>
+              <input
+                type="text"
+                class="form-control"
+                id="motivo"
+                formControlName="motivo"
+                [class.is-invalid]="isFieldInvalid(traspasoForm, 'motivo')">
+              <div class="invalid-feedback">
+                {{getErrorMessage(traspasoForm, 'motivo')}}
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label for="observaciones" class="form-label">Observaciones</label>
+              <textarea
+                class="form-control"
+                id="observaciones"
+                formControlName="observaciones"
+                rows="3">
+              </textarea>
+            </div>
+
+            <!-- Error Message -->
+            @if (error()) {
+              <div class="alert alert-danger mb-4">
+                {{error()}}
+              </div>
+            }
+
+            <!-- Submit Button -->
+            <div class="d-flex justify-content-end">
+              <button
+                type="submit"
+                class="btn btn-primary"
+                [disabled]="traspasoForm.invalid || !productoSeleccionado() || cargando()">
+                <i class="bi bi-arrow-left-right me-2"></i>Realizar Traspaso
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Traspasos Recientes -->
+    <div class="col-lg-4">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="card-title h4 mb-4">Traspasos Recientes</h2>
+
+          @if (traspasosRecientes().length === 0) {
+            <p class="text-muted">No hay traspasos recientes</p>
+          } @else {
+            <div class="table-responsive">
+              <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Producto</th>
+                    <th>Origen</th>
+                    <th>Destino</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (traspaso of traspasosRecientes(); track traspaso.codigoProducto) {
+                    <tr>
+                      <td>{{formatearFecha(traspaso.fecha)}}</td>
+                      <td>{{traspaso.codigoProducto}}</td>
+                      <td>{{traspaso.ubicacionOrigen}}</td>
+                      <td>{{traspaso.ubicacionDestino}}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
